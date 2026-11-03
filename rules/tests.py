@@ -90,9 +90,120 @@ class EndToEndTests(SimpleTestCase):
             self.assertEqual(check(result).verdict, Verdict.PASS, check.__name__)
 
 
+def verdict(check, **fields):
+    return check(make_result(**fields)).verdict
+
+
+class ManufactureVsPackingDateTests(SimpleTestCase):
+    def test_packing_date_only_needs_review(self):
+        self.assertEqual(verdict(checks.check_manufacture_date, packed_date="Packed on 05/2025"),
+                         Verdict.CANNOT_DETERMINE)
+
+
+class GenericNameRuleTests(SimpleTestCase):
+    def test_found_passes(self):
+        self.assertEqual(verdict(checks.check_generic_name, generic_name="Product Name: Peanuts"), Verdict.PASS)
+
+    def test_missing_needs_review(self):
+        self.assertEqual(verdict(checks.check_generic_name), Verdict.CANNOT_DETERMINE)
+
+
+class UnitsRuleTests(SimpleTestCase):
+    def check(self, text, **extra):
+        return verdict(checks.check_net_quantity_units, net_quantity=text, **extra)
+
+    def test_standard_units_pass(self):
+        for text in ["Net Wt. 250 g", "Net Wt. 1.5 kg", "Net Vol. 500 ml", "Net Qty 2 L",
+                     "Net Wt. 1000 g", "Net Qty 6 pcs", "शुद्ध मात्रा 500 ग्राम"]:
+            self.assertEqual(self.check(text), Verdict.PASS, text)
+
+    def test_non_si_symbol_fails(self):
+        self.assertEqual(self.check("Net Wt. 200 gms"), Verdict.FAIL)
+        self.assertEqual(self.check("Net Vol. 1 ltr"), Verdict.FAIL)
+
+    def test_wrong_size_of_unit_fails(self):
+        self.assertEqual(self.check("Net Wt. 0.5 kg"), Verdict.FAIL)
+        self.assertEqual(self.check("Net Wt. 1500 g"), Verdict.FAIL)
+        self.assertEqual(self.check("Net Vol. 2000 ml"), Verdict.FAIL)
+
+    def test_qualifier_fails(self):
+        self.assertEqual(self.check("Net Wt. 250 g", quantity_qualifier="Net Wt. approx"), Verdict.FAIL)
+
+    def test_missing_needs_review(self):
+        self.assertEqual(verdict(checks.check_net_quantity_units), Verdict.CANNOT_DETERMINE)
+
+
+class ConsumerCareRuleTests(SimpleTestCase):
+    def test_phone_under_heading_passes(self):
+        self.assertEqual(verdict(checks.check_consumer_care, consumer_care="Customer care: 1800 123 4567",
+                                 phone="1800 123 4567"), Verdict.PASS)
+
+    def test_email_only_fails(self):
+        self.assertEqual(verdict(checks.check_consumer_care, consumer_care="Customer care: a@b.in",
+                                 email="a@b.in"), Verdict.FAIL)
+
+    def test_phone_without_heading_needs_review(self):
+        self.assertEqual(verdict(checks.check_consumer_care, phone="98765 43210"), Verdict.CANNOT_DETERMINE)
+
+
+class CountryOfOriginRuleTests(SimpleTestCase):
+    def test_not_imported_is_not_applicable(self):
+        self.assertEqual(verdict(checks.check_country_of_origin), Verdict.PASS)
+
+    def test_imported_without_origin_fails(self):
+        self.assertEqual(verdict(checks.check_country_of_origin, import_statement="Imported by"), Verdict.FAIL)
+
+    def test_imported_with_origin_passes(self):
+        self.assertEqual(verdict(checks.check_country_of_origin, import_statement="Imported by",
+                                 country_of_origin="Country of Origin: Thailand"), Verdict.PASS)
+
+
+class UnitSalePriceRuleTests(SimpleTestCase):
+    def check(self, quantity, usp=None):
+        fields = {"net_quantity": quantity}
+        if usp:
+            fields["unit_sale_price"] = usp
+        return verdict(checks.check_unit_sale_price, **fields)
+
+    def test_right_base_passes(self):
+        self.assertEqual(self.check("Net Wt. 250 g", "₹ 0.48 per g"), Verdict.PASS)
+        self.assertEqual(self.check("Net Wt. 5 kg", "Rs. 52.00 per kg"), Verdict.PASS)
+        self.assertEqual(self.check("Net Wt. 1 kg", "Rs. 0.10 per g"), Verdict.PASS)  # exactly 1 kg: either
+        self.assertEqual(self.check("Net Qty 6 pcs", "₹ 10 per piece"), Verdict.PASS)
+
+    def test_wrong_base_fails(self):
+        self.assertEqual(self.check("Net Wt. 250 g", "₹ 480 per kg"), Verdict.FAIL)
+        self.assertEqual(self.check("Net Wt. 5 kg", "₹ 0.05 per g"), Verdict.FAIL)
+        self.assertEqual(self.check("Net Wt. 250 g", "₹ 48 per 100 g"), Verdict.FAIL)
+        self.assertEqual(self.check("Net Wt. 250 g", "₹ 0.48 per ml"), Verdict.FAIL)
+
+    def test_missing_fails_unless_single_item(self):
+        self.assertEqual(self.check("Net Wt. 250 g"), Verdict.FAIL)
+        self.assertEqual(self.check("Net Qty 1 N"), Verdict.PASS)
+
+
+class BestBeforeRuleTests(SimpleTestCase):
+    def test_found_passes(self):
+        self.assertEqual(verdict(checks.check_best_before, best_before="Best before 11/2026"), Verdict.PASS)
+
+    def test_missing_needs_review(self):
+        self.assertEqual(verdict(checks.check_best_before), Verdict.CANNOT_DETERMINE)
+
+
+class MeasurementRuleTests(SimpleTestCase):
+    def test_always_needs_review(self):
+        for check in (checks.check_letter_height, checks.check_principal_display_panel):
+            self.assertEqual(verdict(check), Verdict.CANNOT_DETERMINE)
+
+
 class SeededRulesTests(TestCase):
     def test_rules_are_seeded_by_migration(self):
         from .models import Rule
         self.assertEqual(
-            sorted(Rule.objects.values_list("code", flat=True)), ["R01", "R03", "R05", "R06"]
+            sorted(Rule.objects.values_list("code", flat=True)),
+            ["M01", "M02", "R01", "R02", "R03", "R04", "R05", "R06", "R07", "R08", "R09", "R10"],
         )
+
+    def test_no_reference_left_unverified(self):
+        from .models import Rule
+        self.assertFalse(Rule.objects.filter(legal_reference__icontains="verify").exists())
