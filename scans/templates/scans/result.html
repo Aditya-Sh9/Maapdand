@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>LabelCheck result</title></head>
+<body>
+  <h1>Result: {{ scan.get_overall_verdict_display }}</h1>
+  <p>Screening aid only. The final decision rests with the inspector.</p>
+  <table border="1" cellpadding="4">
+    <tr><th>Rule</th><th>Verdict</th><th>Why</th></tr>
+    {% for r in results %}
+    <tr>
+      <td>{{ r.rule.code }}: {{ r.rule.title }}</td>
+      <td>{{ r.get_verdict_display }}</td>
+      <td>{{ r.message }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <h2>Text checked</h2>
+  <pre>{{ scan.raw_text }}</pre>
+  <p><a href="{% url 'check_text' %}">Check another label</a></p>
+</body>
+</html>

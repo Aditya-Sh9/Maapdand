@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>LabelCheck</title></head>
+<body>
+  <h1>LabelCheck</h1>
+  <p>Paste the text printed on a product label. This is a screening aid, not a legal determination.</p>
+  <form method="post">
+    {% csrf_token %}
+    <textarea name="label_text" rows="12" cols="70"></textarea><br>
+    <button type="submit">Check label</button>
+  </form>
+</body>
+</html>
