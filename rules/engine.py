@@ -32,7 +32,8 @@ def run_scan(scan, result):
             scan=scan, rule=rule, verdict=outcome.verdict,
             message=outcome.message, evidence=outcome.evidence,
         )
-        verdicts.append(outcome.verdict)
+        if not rule.needs_pack:  # pack checks are reported, not counted (see Rule.needs_pack)
+            verdicts.append(outcome.verdict)
     scan.overall_verdict = overall_verdict(verdicts)
     scan.save(update_fields=["overall_verdict"])
     return scan

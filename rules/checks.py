@@ -130,8 +130,17 @@ def check_country_of_origin(result):
     """Imported products must state the country of origin, manufacture or assembly."""
     imported, origin = result.get("import_statement"), result.get("country_of_origin")
     if imported is None:
-        # No importer named: the label presents the product as Indian, so the rule doesn't apply.
-        return RuleOutcome(Verdict.PASS, "Not applicable: no importer named on the label.")
+        if result.is_imported is False:
+            # The person said it is not imported, and the label names no importer: rule doesn't apply.
+            return RuleOutcome(Verdict.PASS, "Not applicable: not imported (as stated when the scan was made).")
+        if result.is_imported is True:
+            if origin is None:
+                return RuleOutcome(Verdict.FAIL, "Marked as imported, but no country of origin found.")
+            return RuleOutcome(Verdict.PASS, "Imported product states its country of origin.",
+                               {"country_of_origin": origin.value})
+        # Nobody said either way: never assume "not imported" and hand out a pass.
+        return RuleOutcome(Verdict.CANNOT_DETERMINE,
+                           "No importer named on the label. Confirm whether the product is imported.")
     evidence = {"import_statement": imported.value}
     if origin is None:
         return RuleOutcome(Verdict.FAIL, "Imported product without a country of origin.", evidence)

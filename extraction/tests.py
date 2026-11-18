@@ -15,6 +15,11 @@ class ParserTests(SimpleTestCase):
         self.assertEqual(parsers.find_net_quantity("NET QTY: 1.5L"), "NET QTY: 1.5L")
         self.assertEqual(parsers.find_net_quantity("Net Content 500ml"), "Net Content 500ml")
 
+    def test_net_quantity_with_qualifier_is_still_found(self):
+        # Found by the evaluation set (t05): R03 must see the quantity; R04 fails the "approx.".
+        self.assertEqual(parsers.find_net_quantity("Net Wt.: approx. 200 g"), "Net Wt.: approx. 200 g")
+        self.assertEqual(parsers.split_quantity("Net Wt.: approx. 200 g")[1], "g")
+
     def test_net_quantity_needs_keyword_and_unit(self):
         self.assertIsNone(parsers.find_net_quantity("250 g of goodness"))
         self.assertIsNone(parsers.find_net_quantity("Net Weight: lots"))

@@ -15,8 +15,9 @@ from rules.engine import run_scan
 from .models import ExtractedField, LabelImage, Product, Scan
 
 
-def run_text_scan(text, user=None):
+def run_text_scan(text, user=None, is_imported=None):
     result = TextExtractor().extract(text)
+    result.is_imported = is_imported  # the person's answer, used by R08
     scan = Scan.objects.create(
         input_mode=Scan.InputMode.TEXT,
         raw_text=result.raw_text,
@@ -81,7 +82,8 @@ def result_from_fields(scan):
             fields[f.field_name] = ExtractedValue(
                 value=f.final_value, confidence=f.confidence, bbox=f.bbox
             )
-    return ExtractionResult(raw_text=scan.raw_text, fields=fields)
+    is_imported = scan.product.is_imported if scan.product else None
+    return ExtractionResult(raw_text=scan.raw_text, fields=fields, is_imported=is_imported)
 
 
 @transaction.atomic

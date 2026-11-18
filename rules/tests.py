@@ -147,8 +147,23 @@ class ConsumerCareRuleTests(SimpleTestCase):
 
 
 class CountryOfOriginRuleTests(SimpleTestCase):
-    def test_not_imported_is_not_applicable(self):
-        self.assertEqual(verdict(checks.check_country_of_origin), Verdict.PASS)
+    def test_unknown_import_status_needs_a_person(self):
+        self.assertEqual(verdict(checks.check_country_of_origin), Verdict.CANNOT_DETERMINE)
+
+    def test_stated_not_imported_is_not_applicable(self):
+        result = make_result()
+        result.is_imported = False
+        self.assertEqual(checks.check_country_of_origin(result).verdict, Verdict.PASS)
+
+    def test_stated_imported_without_origin_fails(self):
+        result = make_result()
+        result.is_imported = True
+        self.assertEqual(checks.check_country_of_origin(result).verdict, Verdict.FAIL)
+
+    def test_stated_imported_with_origin_passes(self):
+        result = make_result(country_of_origin="Made in Thailand")
+        result.is_imported = True
+        self.assertEqual(checks.check_country_of_origin(result).verdict, Verdict.PASS)
 
     def test_imported_without_origin_fails(self):
         self.assertEqual(verdict(checks.check_country_of_origin, import_statement="Imported by"), Verdict.FAIL)
@@ -194,6 +209,26 @@ class MeasurementRuleTests(SimpleTestCase):
     def test_always_needs_review(self):
         for check in (checks.check_letter_height, checks.check_principal_display_panel):
             self.assertEqual(verdict(check), Verdict.CANNOT_DETERMINE)
+
+
+class OverallVerdictScopeTests(TestCase):
+    """M01/M02 need the physical pack, so they are shown but left out of the overall verdict."""
+
+    def test_pack_rules_are_flagged(self):
+        from .models import Rule
+        self.assertEqual(sorted(Rule.objects.filter(needs_pack=True).values_list("code", flat=True)), ["M01", "M02"])
+
+    def test_label_that_passes_every_text_rule_can_pass_overall(self):
+        from unittest import mock
+        from scans.models import Scan
+        from .engine import run_scan
+        from .verdicts import RuleOutcome
+        always_pass = mock.Mock(return_value=RuleOutcome(Verdict.PASS, "ok"))
+        with mock.patch("rules.engine.run_rule", side_effect=lambda code, r: always_pass() if not code.startswith("M")
+                        else RuleOutcome(Verdict.CANNOT_DETERMINE, "needs the pack")):
+            scan = run_scan(Scan.objects.create(), make_result())
+        self.assertEqual(scan.overall_verdict, Verdict.PASS)
+        self.assertEqual(scan.results.filter(verdict=Verdict.CANNOT_DETERMINE).count(), 2)  # still recorded
 
 
 class SeededRulesTests(TestCase):

@@ -7,7 +7,7 @@
 <div class="wrap page">
   <div class="page-head">
     <h1>The rules Maapdand checks</h1>
-    <p>Each check maps to a clause of the Legal Metrology (Packaged Commodities) Rules, 2011, verified against the gazette text and its amendments. R-rules are read from the label text. M-rules need the physical pack, so they return Cannot determine for now.</p>
+    <p>Each check maps to a clause of the Legal Metrology (Packaged Commodities) Rules, 2011, verified against the gazette text and its amendments. R-rules are read from the label text. M-rules need the physical pack, so they return Cannot determine and are listed separately, outside the overall result.</p>
   </div>
 
   <table class="rtable">
@@ -19,7 +19,7 @@
       {% for rule in rules %}
       <tr id="{{ rule.code }}">
         <td><span class="code">{{ rule.code }}</span></td>
-        <td><strong>{{ rule.title }}</strong>{% if not rule.enabled %} <span class="tag">Switched off</span>{% endif %}<p class="desc">{{ rule.description }}</p></td>
+        <td><strong>{{ rule.title }}</strong>{% if rule.needs_pack %} <span class="tag">Needs the physical pack</span>{% endif %}{% if not rule.enabled %} <span class="tag">Switched off</span>{% endif %}<p class="desc">{{ rule.description }}</p></td>
         <td class="clause" data-label="Clause">{{ rule.legal_reference|default:"Not recorded" }}</td>
         <td data-label="Severity"><span class="tag{% if rule.severity == 'critical' %} tag--critical{% endif %}">{{ rule.get_severity_display }}</span></td>
       </tr>

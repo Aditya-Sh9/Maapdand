@@ -23,9 +23,10 @@
         <span class="wordmark__hi" lang="hi">मापदंड</span>
       </a>
       <nav class="site-nav" aria-label="Main">
-        {% url 'upload_images' as upload_url %}{% url 'rule_list' as rules_url %}
+        {% url 'upload_images' as upload_url %}{% url 'rule_list' as rules_url %}{% url 'scan_history' as history_url %}
+        <a href="{{ history_url }}"{% if request.path == history_url %} aria-current="page"{% endif %}>History</a>
         <a href="{{ rules_url }}"{% if request.path == rules_url %} aria-current="page"{% endif %}>Rules</a>
-        <a class="btn btn--primary btn--small" href="{{ upload_url }}"{% if request.path == upload_url %} aria-current="page"{% endif %}>Check a label</a>
+        <a class="btn btn--primary btn--small nav-cta" href="{{ upload_url }}"{% if request.path == upload_url %} aria-current="page"{% endif %}>{% icon "camera" 18 %}<span class="nav-cta__label">Check a label</span></a>
       </nav>
     </div>
   </header>

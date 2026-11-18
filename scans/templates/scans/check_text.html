@@ -17,6 +17,15 @@
       <textarea class="textarea" id="label_text" name="label_text" required spellcheck="false" aria-describedby="text-hint" placeholder="Net Qty: 200 g&#10;MRP ₹ 60.00 (Incl. of all taxes)&#10;Mfd. &amp; Packed by: …"></textarea>
       <p class="field__hint" id="text-hint">Keep line breaks as they appear on the pack; they help find where each declaration ends.</p>
     </div>
+    <fieldset class="fieldset">
+      <legend>Is it imported?</legend>
+      <p class="field__hint">Imported packs must also state the country of origin (R08). If you are not sure, that check is left for you to confirm.</p>
+      <div class="segmented">
+        <label><input type="radio" name="is_imported" value="no"><span>No</span></label>
+        <label><input type="radio" name="is_imported" value="yes"><span>Yes</span></label>
+        <label><input type="radio" name="is_imported" value="" checked><span>Not sure</span></label>
+      </div>
+    </fieldset>
     <div class="btn-row">
       <button type="submit" class="btn btn--primary btn--large">{% icon "list-checks" 20 %}Run the checks</button>
       <a class="small" href="{% url 'upload_images' %}">Have photos? Upload them instead</a>

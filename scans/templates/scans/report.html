@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static ui %}
+{% block title %}Maapdand report · Scan {{ scan.pk }}{% endblock %}
+{% block body_class %}page-report{% endblock %}
+
+{% block content %}
+<div class="wrap page">
+  {# On screen only: how to get the PDF. Hidden when printing. #}
+  <div class="report-bar no-print">
+    <a class="btn btn--secondary btn--small" href="{% url 'scan_result' scan.pk %}">{% icon "arrow-left" 18 %}Back to result</a>
+    <button type="button" class="btn btn--primary" id="print-btn">{% icon "file-text" 20 %}Save as PDF</button>
+    <p class="small muted">Opens your browser's print window. Choose "Save as PDF" as the printer.</p>
+  </div>
+
+  <article class="report" aria-labelledby="report-title">
+    <header class="report__head">
+      <div>
+        <p class="report__brand">Maapdand <span lang="hi">मापदंड</span></p>
+        <h1 id="report-title">Label screening report</h1>
+        <p class="muted">Legal Metrology (Packaged Commodities) Rules, 2011</p>
+      </div>
+      <dl class="report__meta">
+        <dt>Scan</dt><dd class="mono">#{{ scan.pk }}</dd>
+        <dt>Date</dt><dd>{{ scan.created_at|date:"j M Y, H:i" }}</dd>
+        <dt>Product</dt><dd>{{ scan.product.name|default:"Not named" }}</dd>
+        {% if scan.product %}<dt>Category</dt><dd>{{ scan.product.get_category_display|default:"Not stated" }}</dd>
+        <dt>Imported</dt><dd>{% if scan.product.is_imported is True %}Yes{% elif scan.product.is_imported is False %}No{% else %}Not stated{% endif %}</dd>{% endif %}
+        <dt>Input</dt><dd>{% if scan.input_mode == "image" %}{{ images|length }} image{{ images|length|pluralize }}, reviewed by a person{% else %}Pasted text{% endif %}</dd>
+      </dl>
+    </header>
+
+    <section class="report__summary">
+      <h2>Result {% verdict_chip scan.overall_verdict %}</h2>
+      <p>
+        {% if scan.overall_verdict == "FAIL" %}{{ summary.failed }} of {{ summary.total }} label checks failed{% if summary.cannot %} and {{ summary.cannot }} need{{ summary.cannot|pluralize:"s," }} a person to confirm{% endif %}.
+        {% elif scan.overall_verdict == "CANNOT_DETERMINE" %}No label check failed; {{ summary.cannot }} need{{ summary.cannot|pluralize:"s," }} a person to confirm.
+        {% else %}All {{ summary.total }} label checks passed.{% endif %}
+        Pass {{ summary.passed }} · Fail {{ summary.failed }} · Cannot determine {{ summary.cannot }}.{% if pack_rows %} {{ pack_rows|length }} check{{ pack_rows|length|pluralize }} need{{ pack_rows|length|pluralize:"s," }} the physical pack and {{ pack_rows|length|pluralize:"is,are" }} not counted.{% endif %}
+      </p>
+      <p class="report__notice">{% icon "info" 16 %}<span><strong>Screening aid, not a legal determination.</strong> The final decision rests with the Legal Metrology officer.</span></p>
+    </section>
+
+    <section>
+      <h2>Label checks</h2>
+      <table class="report__table">
+        <thead><tr><th scope="col">Rule</th><th scope="col">Result</th><th scope="col">Finding and evidence</th><th scope="col">Legal clause</th></tr></thead>
+        <tbody>
+          {% for row in label_rows %}
+          <tr>
+            <td><span class="code">{{ row.rule.code }}</span><br>{{ row.rule.title }}</td>
+            <td>{% verdict_chip row.result.verdict %}</td>
+            <td>{{ row.result.message }}{% for ev in row.evidence %}<br><span class="muted">{{ ev.label }}:</span> <span class="mono">{{ ev.value }}</span>{% endfor %}</td>
+            <td class="small">{{ row.rule.legal_reference }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    {% if pack_rows %}
+    <section>
+      <h2>Needs the physical pack</h2>
+      <table class="report__table">
+        <tbody>
+          {% for row in pack_rows %}
+          <tr>
+            <td><span class="code">{{ row.rule.code }}</span><br>{{ row.rule.title }}</td>
+            <td>{% verdict_chip row.result.verdict %}</td>
+            <td>{{ row.result.message }}</td>
+            <td class="small">{{ row.rule.legal_reference }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+
+    {% if scan.input_mode == "image" %}
+    <section>
+      <h2>Values the checks used</h2>
+      <table class="report__table report__table--fields">
+        <thead><tr><th scope="col">Declaration</th><th scope="col">Value</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          {% for row in fields %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td class="mono">{{ row.value }}</td>
+            <td class="small">{% if row.field.corrected_value %}Corrected by reviewer{% if row.field.value %} (read as <span class="mono">{{ row.field.value }}</span>){% endif %}{% else %}Read from image {% if row.image_index is not None %}{{ row.image_index|add:1 }}{% endif %}, {{ row.confidence }}% sure{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="report__images">
+      <h2>Evidence on the label</h2>
+      {% for img in images %}
+      <figure>
+        <div class="viewer__frame is-active">
+          <img src="{{ img.image.url }}" alt="Label image {{ forloop.counter }}">
+          {% for row in rows %}{% for box in row.boxes %}{% if box.image == forloop.parentloop.parentloop.counter0 %}{% if forloop.last %}{% evidence_box box.bbox row.result.verdict|verdict_css row.rule.code row.rule.title row.rule.code %}{% else %}{% evidence_box box.bbox row.result.verdict|verdict_css row.rule.code row.rule.title %}{% endif %}{% endif %}{% endfor %}{% endfor %}
+        </div>
+        <figcaption class="small muted">Image {{ forloop.counter }}. Boxes are tagged with their rule and coloured by verdict.</figcaption>
+      </figure>
+      {% endfor %}
+    </section>
+    {% else %}
+    <section>
+      <h2>Text checked</h2>
+      <pre class="report__text">{{ scan.raw_text }}</pre>
+    </section>
+    {% endif %}
+
+    <footer class="report__sign">
+      <div><span>Checked by (officer)</span></div>
+      <div><span>Signature and date</span></div>
+    </footer>
+  </article>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'js/report.js' %}" defer></script>{% endblock %}

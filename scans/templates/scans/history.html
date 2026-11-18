@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Scan history · Maapdand{% endblock %}
+{% block body_class %}page-history{% endblock %}
+
+{% block content %}
+<div class="wrap page">
+  <div class="page-head">
+    <h1>Scan history</h1>
+    <p>Every label checked so far, newest first. Open one to see its result, or its review if no one has confirmed the values yet.</p>
+  </div>
+
+  <nav class="filters" aria-label="Filter by result">
+    {% for value, label in filters %}
+    <a href="?verdict={{ value }}"{% if value == current %} aria-current="true"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  {% if page.object_list %}
+  <table class="rtable history">
+    <caption class="visually-hidden">Scans{% if current %}, filtered{% endif %}, page {{ page.number }} of {{ page.paginator.num_pages }}</caption>
+    <thead>
+      <tr><th scope="col">Scan</th><th scope="col">Date</th><th scope="col">Input</th><th scope="col">Result</th><th scope="col">Needs a look</th></tr>
+    </thead>
+    <tbody>
+      {% for scan in page.object_list %}
+      <tr>
+        <td>
+          {% if scan.overall_verdict %}<a class="scan-link" href="{% url 'scan_result' scan.pk %}">{% else %}<a class="scan-link" href="{% url 'scan_review' scan.pk %}">{% endif %}
+            <span class="code">#{{ scan.pk }}</span> {% if scan.product %}{{ scan.product.name|default:"Unnamed product" }}{% else %}{{ scan.raw_text|truncatechars:40|default:"Pasted text" }}{% endif %}</a>
+        </td>
+        <td data-label="Date">{{ scan.created_at|date:"j M Y, H:i" }}</td>
+        <td data-label="Input">{% if scan.input_mode == "image" %}{{ scan.image_count }} image{{ scan.image_count|pluralize }}{% else %}Pasted text{% endif %}</td>
+        <td data-label="Result">{% if scan.overall_verdict %}{% verdict_chip scan.overall_verdict %}{% else %}<span class="tag">Awaiting review</span>{% endif %}</td>
+        <td data-label="Needs a look">{% if scan.overall_verdict %}{% if scan.failed %}<span class="count-fail">{{ scan.failed }} fail</span>{% if scan.doubtful %}, {% endif %}{% endif %}{% if scan.doubtful %}{{ scan.doubtful }} to confirm{% endif %}{% if not scan.failed and not scan.doubtful %}<span class="muted">None</span>{% endif %}{% else %}<span class="muted">Not checked yet</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if page.paginator.num_pages > 1 %}
+  <nav class="pager" aria-label="Pages">
+    {% if page.has_previous %}<a class="btn btn--secondary btn--small" href="?verdict={{ current }}&amp;page={{ page.previous_page_number }}">{% icon "arrow-left" 16 %}Newer</a>{% else %}<span></span>{% endif %}
+    <span class="muted">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a class="btn btn--secondary btn--small" href="?verdict={{ current }}&amp;page={{ page.next_page_number }}">Older{% icon "arrow-right" 16 %}</a>{% else %}<span></span>{% endif %}
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="empty">
+    <h2>{% if current %}No scans with this result{% else %}No scans yet{% endif %}</h2>
+    <p class="muted">{% if current %}Try another filter, or check a new label.{% else %}Checked labels appear here, so you can come back to a result or its report.{% endif %}</p>
+    <a class="btn btn--primary" href="{% url 'upload_images' %}">{% icon "camera" 20 %}Check a label</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

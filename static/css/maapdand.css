@@ -474,3 +474,91 @@ form.is-busy .busy { display: flex; }
 @media (max-width: 959px) {
   .page-upload main { padding-bottom: 88px; }  /* room so the camera button never hides the last control */
 }
+.pack-title { font-size: var(--fs-h3); margin: var(--s6) 0 var(--s2); }
+.pack-note { max-width: 68ch; margin-bottom: var(--s3); }
+
+/* ---------- Report (screen: a paper sheet; print: A4 document) ---------- */
+.report-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); margin-bottom: var(--s5); }
+.report-bar p { flex-basis: 100%; }
+.report { max-width: 900px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card);
+  box-shadow: var(--shadow); padding: var(--s5); display: grid; gap: var(--s6); }
+@media (min-width: 720px) { .report { padding: var(--s7); } }
+.report h2 { font-size: var(--fs-h3); margin-bottom: var(--s3); display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; }
+.report__head { display: grid; gap: var(--s5); padding-bottom: var(--s5); border-bottom: 2px solid var(--ink); }
+@media (min-width: 720px) { .report__head { grid-template-columns: 1fr auto; align-items: end; } }
+.report__brand { font-family: var(--font-serif); font-weight: 600; color: var(--primary); }
+.report__brand span { color: var(--muted); font-size: 0.875em; margin-left: 4px; }
+.report__head h1 { font-size: var(--fs-h2); margin: var(--s1) 0; }
+.report__meta { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px var(--s4); font-size: var(--fs-small); }
+.report__meta dt { color: var(--muted); }
+.report__meta dd { margin: 0; }
+.report__summary { display: grid; gap: var(--s3); }
+.report__notice { display: flex; gap: var(--s2); font-size: var(--fs-small); color: var(--muted); }
+.report__notice strong { color: var(--ink); }
+.report__notice .icon { margin-top: 3px; }
+.report__table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+.report__table th, .report__table td { text-align: left; vertical-align: top; padding: var(--s2) var(--s3) var(--s2) 0; border-bottom: 1px solid var(--line); }
+.report__table th { color: var(--muted); font-weight: 600; border-bottom-color: var(--ink); }
+.report__table td:first-child { min-width: 9rem; }
+.report__table .chip { font-size: 0.75rem; }
+.report__table .mono { word-break: break-word; }
+.report__images { display: grid; gap: var(--s4); }
+.report__images figure { margin: 0; display: grid; gap: var(--s2); }
+.report__images .viewer__frame { border: 1px solid var(--line); border-radius: var(--r-control); overflow: hidden; }
+.report__images .evbox { opacity: 1; }
+.report__text { white-space: pre-wrap; word-break: break-word; font: 0.8125rem/1.6 var(--font-mono); margin: 0; }
+.report__sign { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); padding-top: var(--s7); }
+.report__sign div { border-top: 1px solid var(--ink); padding-top: var(--s2); font-size: var(--fs-small); color: var(--muted); }
+@media (max-width: 599px) {
+  .report__table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .report__table, .report__table tbody, .report__table tr, .report__table td { display: block; }
+  .report__table tr { padding: var(--s3) 0; border-bottom: 1px solid var(--line); }
+  .report__table td { border: 0; padding: 2px 0; }
+}
+
+/* ---------- History ---------- */
+.filters { display: flex; flex-wrap: wrap; gap: var(--s2); margin-bottom: var(--s5); }
+.filters a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--s4); border: 1px solid var(--line); border-radius: var(--r-pill);
+  background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 500; font-size: var(--fs-small); }
+.filters a:hover { border-color: var(--primary); color: var(--primary); }
+.filters a[aria-current="true"] { border-color: var(--primary); background: var(--primary-tint); color: var(--primary); font-weight: 600; }
+.history td { vertical-align: middle; }
+.history .scan-link { font-weight: 600; text-decoration: none; color: var(--ink); display: inline-flex; align-items: center; gap: var(--s2); min-height: 44px; }
+.history .scan-link:hover { color: var(--primary); text-decoration: underline; }
+.history .count-fail { color: var(--fail-fg); font-weight: 600; }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); margin-top: var(--s5); font-size: var(--fs-small); }
+.empty { display: grid; justify-items: start; gap: var(--s4); padding: var(--s7) var(--s5); background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r-card); }
+
+/* ---------- Print: the report as an A4 document, always light ---------- */
+@page { size: A4; margin: 14mm 14mm 16mm; }
+@media print {
+  :root, :root:root {
+    --bg: #FFFFFF; --surface: #FFFFFF; --ink: #111111; --muted: #4A4A4A; --line: #CFCFCF; --primary: #0F6B5C;
+    --pass-bg: #DCEFE3; --pass-fg: #14532D; --fail-bg: #F8DCD8; --fail-fg: #8A1F17; --cannot-bg: #FBEBC6; --cannot-fg: #7A4B00;
+    --seg-pass: #2F8A57; --seg-fail: #C2473B; --seg-cannot: #C48A1C; --shadow: none;
+  }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { background: #fff; font-size: 10.5pt; }
+  .site-header, .site-footer, .skip-link, .no-print, .camera-fab { display: none !important; }
+  .wrap, .page { padding: 0; max-width: none; }
+  .report { border: 0; padding: 0; box-shadow: none; max-width: none; gap: 18pt; }
+  .report__table tr, .report__images figure, .report__sign { break-inside: avoid; }
+  .report h2 { break-after: avoid; }
+  .report__images img { max-height: 120mm; width: auto; max-width: 100%; }
+  .report__images .viewer__frame { display: inline-block; }
+  a { color: inherit; text-decoration: none; }
+}
+/* Report tables share column widths so the label and pack tables line up. */
+@media (min-width: 600px) {
+  .report__table:not(.report__table--fields) { table-layout: fixed; }
+  .report__table:not(.report__table--fields) td:nth-child(1), .report__table:not(.report__table--fields) th:nth-child(1) { width: 26%; }
+  .report__table:not(.report__table--fields) td:nth-child(2), .report__table:not(.report__table--fields) th:nth-child(2) { width: 19%; }
+  .report__table:not(.report__table--fields) td:nth-child(4), .report__table:not(.report__table--fields) th:nth-child(4) { width: 19%; }
+}
+.report__images .viewer__frame { width: fit-content; max-width: 100%; }
+
+/* Small phones: the header button becomes a camera icon so Home, History, Rules and the CTA fit on one line. */
+@media (max-width: 479px) {
+  .nav-cta { width: 44px; padding: 0; border-radius: 50%; }
+  .nav-cta__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}

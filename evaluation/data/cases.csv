@@ -1,0 +1,23 @@
+id,input,is_imported,synthetic,notes,R01,R02,R03,R04,R05,R06,R07,R08,R09,R10,M01,M02
+t01_good_en,text/t01_good_en.txt,no,yes,Fully compliant English label,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t02_mrp_no_tax_note,text/t02_mrp_no_tax_note.txt,no,yes,MRP without 'inclusive of all taxes',PASS,PASS,PASS,PASS,PASS,FAIL,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t03_no_consumer_care,text/t03_no_consumer_care.txt,no,yes,No consumer care details at all,PASS,PASS,PASS,PASS,PASS,PASS,FAIL,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t04_gm_not_si,text/t04_gm_not_si.txt,no,yes,'gm' is not the SI symbol 'g',PASS,PASS,PASS,FAIL,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t05_approx_quantity,text/t05_approx_quantity.txt,no,yes,Quantity qualified by 'approx.',PASS,PASS,PASS,FAIL,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t06_big_quantity_in_g,text/t06_big_quantity_in_g.txt,no,yes,1.5 kg must be written in kg,PASS,PASS,PASS,FAIL,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t07_imported_no_origin,text/t07_imported_no_origin.txt,yes,yes,"Importer named, no country of origin",PASS,PASS,PASS,PASS,PASS,PASS,PASS,FAIL,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t08_imported_with_origin,text/t08_imported_with_origin.txt,yes,yes,Importer and country of origin,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t09_packed_date_only,text/t09_packed_date_only.txt,no,yes,Only a packing date (rule asks for manufacture date),PASS,PASS,PASS,PASS,CANNOT_DETERMINE,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t10_no_manufacturer,text/t10_no_manufacturer.txt,no,yes,No maker / packer statement,FAIL,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t11_manufacturer_no_pin,text/t11_manufacturer_no_pin.txt,no,yes,"Maker named, address may be incomplete",CANNOT_DETERMINE,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t12_no_unit_sale_price,text/t12_no_unit_sale_price.txt,no,yes,No unit sale price,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,FAIL,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t13_usp_per_100g,text/t13_usp_per_100g.txt,no,yes,"Per 100 g, rule says per g (literal reading)",PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,FAIL,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t14_good_hindi,text/t14_good_hindi.txt,no,yes,Fully compliant Hindi label,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t15_no_mrp,text/t15_no_mrp.txt,no,yes,No MRP,PASS,PASS,PASS,PASS,PASS,FAIL,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t16_mrp_no_currency,text/t16_mrp_no_currency.txt,no,yes,MRP without rupee sign,PASS,PASS,PASS,PASS,PASS,FAIL,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t17_phone_without_heading,text/t17_phone_without_heading.txt,no,yes,Phone not marked as consumer care,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t18_single_item,text/t18_single_item.txt,no,yes,Single item: unit sale price not required,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t19_import_status_unknown,text/t19_import_status_unknown.txt,,yes,Nobody said whether it is imported,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+t20_no_best_before,text/t20_no_best_before.txt,no,yes,No best before (needed only for perishables),PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE,CANNOT_DETERMINE
+i01_good_en_image,images/i01_good_en.png,no,yes,t01 rendered as an image (OCR path),PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE
+i02_good_hindi_image,images/i02_good_hindi.png,no,yes,"t14 rendered as an image (OCR path, Hindi)",PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,PASS,CANNOT_DETERMINE,CANNOT_DETERMINE

@@ -19,6 +19,9 @@ class Rule(models.Model):
     severity = models.CharField(max_length=10, choices=Severity.choices, default=Severity.MAJOR)
     enabled = models.BooleanField(default=True)
     required_fields = models.JSONField(default=list, blank=True)
+    # True for checks that need the physical pack (letter height, display panel). They are
+    # shown on the result page but left out of the overall verdict, which text can settle.
+    needs_pack = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["code"]

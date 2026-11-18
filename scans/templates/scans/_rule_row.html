@@ -1,0 +1,24 @@
+{% load ui %}{# One expandable rule row: summary line, then clause and evidence. Used by result.html. #}
+        <li>
+          <details class="rrow" data-field="{{ row.rule.code }}">
+            <summary>
+              <span class="code">{{ row.rule.code }}</span>
+              <span class="rrow__title">{{ row.rule.title }}<span class="rrow__msg">{{ row.result.message }}</span></span>
+              {% verdict_chip row.result.verdict %}
+              <span class="rrow__chev">{% icon "chevron-down" 20 %}</span>
+            </summary>
+            <div class="rrow__body">
+              <dl>
+                <dt>What it checks</dt><dd>{{ row.rule.description }}</dd>
+                <dt>Legal clause</dt><dd>{{ row.rule.legal_reference|default:"Not recorded" }}</dd>
+                <dt>Severity</dt><dd>{{ row.rule.get_severity_display }}</dd>
+                {% for ev in row.evidence %}
+                <dt>{{ ev.label }}</dt><dd class="mono">{{ ev.value }}</dd>
+                {% empty %}
+                <dt>Evidence</dt><dd class="muted">Nothing on the label supports this check.</dd>
+                {% endfor %}
+              </dl>
+              {% if row.boxes %}<p><button type="button" class="link-btn" data-show="{{ row.rule.code }}">Show on the image</button></p>{% endif %}
+            </div>
+          </details>
+        </li>

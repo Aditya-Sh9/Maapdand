@@ -18,6 +18,9 @@ class ExtractionResult:
     raw_text: str
     fields: dict = field(default_factory=dict)  # field name -> ExtractedValue
     image_texts: list = field(default_factory=list)  # OCR text of each input image, in order
+    # What the person told us, not read from the label: True / False / None (didn't say).
+    # R08 needs it, because "no importer on the label" alone doesn't prove the product is Indian.
+    is_imported: bool | None = None
 
     def get(self, name):
         """Return the ExtractedValue for a field, or None if it was not found."""

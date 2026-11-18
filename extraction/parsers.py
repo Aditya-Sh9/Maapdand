@@ -39,7 +39,10 @@ _IMPORTED = re.compile(any_of(IMPORTED), _FLAGS)
 _GENERIC_NAME = re.compile(any_of(GENERIC_NAME) + _SEP + _LINE_VALUE, _FLAGS)
 
 _NET_QUANTITY = re.compile(
-    any_of(NET_QUANTITY) + r"\.?\s*[:\-]?\s*" + _NUMBER + r"\s*" + _UNIT, _FLAGS
+    # An optional "approx." / "min." may sit before the number: the quantity is still declared
+    # (R03 passes) and R04 separately fails the qualifier.
+    any_of(NET_QUANTITY) + r"\.?\s*[:\-]?\s*(?:" + any_of(QUANTITY_QUALIFIERS) + r"\s*)?" + _NUMBER + r"\s*" + _UNIT,
+    _FLAGS,
 )
 _AMOUNT_AND_UNIT = re.compile(r"(" + _NUMBER + r")\s*(" + _UNIT + r")", _FLAGS)
 
