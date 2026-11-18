@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Maapdand upload</title></head>
+<body>
+  <h1>Check a label from photos</h1>
+  <p>Upload every side of the pack (front, back, sides). A field found in any image counts. Screening aid only.</p>
+  {% if problems %}
+  <ul>
+    {% for p in problems %}<li>{{ p }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+  {# enctype is required, otherwise the browser sends the file names but not the files #}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="images" accept="image/*" multiple><br>
+    {{ form.as_p }}
+    <button type="submit">Read label</button>
+  </form>
+  <p><a href="{% url 'check_text' %}">Paste text instead</a></p>
+</body>
+</html>

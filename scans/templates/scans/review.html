@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Maapdand review</title></head>
+<body>
+  <h1>Review what was read</h1>
+  <p>OCR makes mistakes. Correct any value, or fill in one that was missed, then run the checks. Leave a box empty if the label does not show it.</p>
+  <p>
+    {% for img in images %}
+      <a href="{{ img.image.url }}" target="_blank">Image {{ forloop.counter }}</a>
+      {% if not img.quality_ok %}(quality warning){% endif %}
+    {% endfor %}
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <table border="1" cellpadding="4">
+      <tr><th>Field</th><th>Value</th><th>Confidence</th></tr>
+      {% for name, field in rows %}
+      <tr>
+        <td>{{ name }}</td>
+        <td><input type="text" name="field_{{ name }}" size="60" value="{% if field %}{{ field.final_value }}{% endif %}"></td>
+        <td>{% if field %}{% widthratio field.confidence 1 100 %}%{% else %}not found{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <button type="submit">Run checks</button>
+  </form>
+  <h2>Raw text read</h2>
+  <pre>{{ scan.raw_text }}</pre>
+</body>
+</html>

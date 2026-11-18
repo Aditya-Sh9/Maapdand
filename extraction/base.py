@@ -7,13 +7,17 @@ from dataclasses import dataclass, field
 class ExtractedValue:
     value: str
     confidence: float = 1.0  # typed text is certain; OCR will give lower numbers
-    bbox: list | None = None  # box on the image, filled in by the OCR extractor
+    # Box on the image as fractions of its size: [left, top, width, height], each 0..1.
+    # Fractions (not pixels) so it still fits when the image is shown at any size.
+    bbox: list | None = None
+    image_index: int | None = None  # which input image it came from (None for typed text)
 
 
 @dataclass
 class ExtractionResult:
     raw_text: str
     fields: dict = field(default_factory=dict)  # field name -> ExtractedValue
+    image_texts: list = field(default_factory=list)  # OCR text of each input image, in order
 
     def get(self, name):
         """Return the ExtractedValue for a field, or None if it was not found."""

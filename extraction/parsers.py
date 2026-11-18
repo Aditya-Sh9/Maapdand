@@ -119,8 +119,25 @@ def _first(pattern, text):
     return " ".join(match.group(0).split()) if match else None  # collapse whitespace
 
 
+# A line that starts a new labelled field ("MRP: 45", "Net Quantity - 500 g").
+_NEW_LABEL_LINE = re.compile(r"^\s*[^\W\d_][\w .()/]{0,30}\s*[:\-]\s*\S")
+_MAX_MAKER_LINES = 3  # name + address rarely needs more than three lines
+
+
 def find_manufacturer(text):
-    return _first(_MANUFACTURER, text)
+    """The maker keyword plus its name and address. The pattern grabs ~200 characters
+    so a multi-line address is not cut off; here we cut it back at the next labelled
+    line so other fields (MRP, quantity...) do not end up inside the manufacturer."""
+    match = _MANUFACTURER.search(text)
+    if not match:
+        return None
+    lines = match.group(0).split("\n")
+    kept = [lines[0]]
+    for line in lines[1:_MAX_MAKER_LINES]:
+        if not line.strip() or _NEW_LABEL_LINE.match(line):
+            break
+        kept.append(line)
+    return " ".join(" ".join(kept).split())
 
 
 def find_import_statement(text):

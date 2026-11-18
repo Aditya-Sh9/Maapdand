@@ -16,6 +16,7 @@ IMPORTED = [r"imported\s+by", r"importer", "आयातक", "आयाति�
 GENERIC_NAME = [
     r"generic\s*name", r"common\s*name", r"name\s*of\s*(?:the\s*)?(?:commodity|product)",
     r"product\s*name",
+    r"product(?=\s*:)",  # bare "Product: Wheat Flour"; the colon stops "Product of India" matching
     "उत्पाद\\s*का\\s*नाम", "वस्तु\\s*का\\s*नाम",
 ]
 
@@ -52,7 +53,7 @@ BEST_BEFORE = [
 DURATION_UNITS = [r"months?", r"days?", r"years?", r"weeks?", "माह", "महीने", "दिन", "वर्ष", "सप्ताह"]
 
 # --- Price (R06, R09) ---
-MRP = [r"m\.?\s*r\.?\s*p\.?", r"max(?:imum)?\.?\s*retail\s*price", "अधिकतम\\s*खुदरा\\s*मूल्य"]
+MRP = [r"m\.?\s*r\.?\s*p\.?", r"max(?:imum)?\.?\s*retail\s*price", "खुदरा\\s*मूल्य"]  # Hindi: anchored on "retail price", so an OCR slip in "अधिकतम" (maximum) still matches
 CURRENCY = [r"rs\.?", r"inr\.?", "₹", r"रु\.?"]
 TAX_NOTE = [r"incl(?:usive|\.)?\s*of\s*all\s*taxes", "सभी\\s*करों\\s*(?:सहित|समेत)"]
 UNIT_SALE_PRICE = [r"unit\s*sale\s*price", r"\bu\.?s\.?p\b\.?", "इकाई\\s*विक्रय\\s*मूल्य"]

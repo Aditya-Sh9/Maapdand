@@ -140,5 +140,11 @@ MAILERS = {
 }
 
 # Uploaded label images
+# OCR: where Tesseract is installed, and which languages to read (English + Hindi).
+TESSERACT_CMD = os.environ.get('TESSERACT_CMD', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
+OCR_LANGUAGES = os.environ.get('OCR_LANGUAGES', 'eng+hin')
+# Language files live inside the project so no admin rights are needed to add Hindi.
+TESSDATA_DIR = BASE_DIR / 'tessdata'
+
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'

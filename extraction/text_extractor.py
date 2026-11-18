@@ -20,6 +20,8 @@ _PARSERS = {
     "country_of_origin": parsers.find_country_of_origin,
 }
 
+FIELD_NAMES = list(_PARSERS)  # used by the review page to list every field, found or not
+
 
 class TextExtractor(BaseExtractor):
     """Extracts fields from text the user typed or pasted."""

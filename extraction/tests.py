@@ -67,6 +67,28 @@ class ParserTests(SimpleTestCase):
     def test_manufacturer_not_confused_with_date(self):
         self.assertIsNone(parsers.find_manufacturer("Mfd: 05/2025"))
 
+    def test_hindi_mrp_survives_an_ocr_slip_in_the_first_word(self):
+        self.assertIn("45.00", parsers.find_mrp("अधकितम खुदरा मूल्य ₹ 45.00"))
+        self.assertIn("45.00", parsers.find_mrp("अधिकतम खुदरा मूल्य ₹ 45.00"))
+
+    def test_manufacturer_stops_at_next_labelled_line(self):
+        text = "Marketed by: Sunrise Foods, 12 MG Road, Pune 411001\nNet Quantity: 500 g\nMRP Rs. 45"
+        found = parsers.find_manufacturer(text)
+        self.assertTrue(found.endswith("411001"))
+        self.assertNotIn("Net Quantity", found)
+
+    def test_manufacturer_keeps_a_two_line_address(self):
+        text = "Manufactured by: Acme Foods Pvt Ltd\n12 Industrial Area, Pune 411001\n\nMRP Rs. 45"
+        found = parsers.find_manufacturer(text)
+        self.assertIn("Industrial Area", found)
+        self.assertTrue(parsers.has_pin_code(found))
+
+    def test_bare_product_label_is_a_generic_name(self):
+        self.assertEqual(parsers.find_generic_name("Product: Wheat Flour"), "Product: Wheat Flour")
+
+    def test_product_of_india_is_not_a_generic_name(self):
+        self.assertIsNone(parsers.find_generic_name("Product of India"))
+
     def test_pin_code(self):
         self.assertFalse(parsers.has_pin_code("Pune 4110"))
 

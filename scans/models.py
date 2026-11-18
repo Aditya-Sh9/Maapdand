@@ -7,7 +7,13 @@ from rules.verdicts import Verdict
 class Product(models.Model):
     """A product is a set of label images (front, back, side...)."""
     name = models.CharField(max_length=200, blank=True)
-    category = models.CharField(max_length=100, blank=True)
+    class Category(models.TextChoices):
+        # Decides which extra rules apply later (food -> FSSAI, cosmetics -> veg/non-veg dot).
+        FOOD = "food", "Food"
+        COSMETICS = "cosmetics", "Cosmetics"
+        OTHER = "other", "Other"
+
+    category = models.CharField(max_length=100, choices=Category.choices, blank=True)
     is_imported = models.BooleanField(null=True, blank=True)  # null = unknown
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL
