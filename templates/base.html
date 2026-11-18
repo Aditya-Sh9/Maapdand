@@ -1,0 +1,49 @@
+{% load static ui %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#F6F3EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121A18" media="(prefers-color-scheme: dark)">
+  <title>{% block title %}Maapdand{% endblock %}</title>
+  <link rel="preload" href="{% static 'fonts/noto-sans-400.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'fonts/source-serif-4-600.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/maapdand.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="wordmark" href="{% url 'landing' %}" aria-label="Maapdand, home">
+        <span class="wordmark__en">Maapdand</span>
+        <span class="wordmark__hi" lang="hi">मापदंड</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        {% url 'upload_images' as upload_url %}{% url 'rule_list' as rules_url %}
+        <a href="{{ rules_url }}"{% if request.path == rules_url %} aria-current="page"{% endif %}>Rules</a>
+        <a class="btn btn--primary btn--small" href="{{ upload_url }}"{% if request.path == upload_url %} aria-current="page"{% endif %}>Check a label</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap site-footer__inner">
+      <p class="site-footer__note">{% icon "info" 18 %}<span><strong>Screening aid, not a legal determination.</strong> Maapdand checks label text against the Legal Metrology (Packaged Commodities) Rules, 2011. The final decision rests with the Legal Metrology officer.</span></p>
+      <p class="site-footer__meta">SIH26034 · <a href="{% url 'rule_list' %}">Rules and legal references</a></p>
+    </div>
+  </footer>
+
+  {# Motion: GSAP for meaningful sequences only. motion.js turns everything off for reduced motion. #}
+  <script src="{% static 'vendor/gsap.min.js' %}" defer></script>
+  <script src="{% static 'js/motion.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

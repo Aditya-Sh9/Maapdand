@@ -1,13 +1,26 @@
-<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><title>Maapdand</title></head>
-<body>
-  <h1>Maapdand</h1>
-  <p>Paste the text printed on a product label. This is a screening aid, not a legal determination.</p>
-  <form method="post">
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Paste label text · Maapdand{% endblock %}
+{% block body_class %}page-text{% endblock %}
+
+{% block content %}
+<div class="wrap page">
+  <div class="page-head">
+    <h1>Paste the label text</h1>
+    <p>Type or paste everything printed on the pack, in English or Hindi. The same checks run as for photos, but without evidence boxes on an image.</p>
+  </div>
+
+  <form method="post" class="text-form">
     {% csrf_token %}
-    <textarea name="label_text" rows="12" cols="70"></textarea><br>
-    <button type="submit">Check label</button>
+    <div class="field">
+      <label class="field__label" for="label_text">Label text</label>
+      <textarea class="textarea" id="label_text" name="label_text" required spellcheck="false" aria-describedby="text-hint" placeholder="Net Qty: 200 g&#10;MRP ₹ 60.00 (Incl. of all taxes)&#10;Mfd. &amp; Packed by: …"></textarea>
+      <p class="field__hint" id="text-hint">Keep line breaks as they appear on the pack; they help find where each declaration ends.</p>
+    </div>
+    <div class="btn-row">
+      <button type="submit" class="btn btn--primary btn--large">{% icon "list-checks" 20 %}Run the checks</button>
+      <a class="small" href="{% url 'upload_images' %}">Have photos? Upload them instead</a>
+    </div>
   </form>
-</body>
-</html>
+</div>
+{% endblock %}

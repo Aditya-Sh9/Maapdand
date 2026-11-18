@@ -58,6 +58,9 @@ def locate(value, words, image_size):
     targets = [_clean(t) for t in value.split() if _clean(t)]
     if not targets:
         return None, None
+    # Skip punctuation-only words ("&", "-") on both sides, or a value like
+    # "Mfd. & Packed by" would stop matching at the "&".
+    words = [w for w in words if _clean(w["text"])]
     cleaned = [_clean(w["text"]) for w in words]
 
     best = []  # longest run of consecutive words matching the start of the value

@@ -2,8 +2,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import UploadForm
 from .models import Scan
+from core.views import rule_order
+
 from .services import (
-    apply_review_and_run, check_image_quality, create_image_scan, review_rows, run_text_scan,
+    apply_review_and_run, check_image_quality, create_image_scan,
+    result_rows, review_rows, run_text_scan, verdict_summary,
 )
 
 MAX_IMAGE_MB = 10
@@ -63,8 +66,10 @@ def scan_review(request, pk):
         apply_review_and_run(scan, corrections)
         return redirect("scan_result", pk=scan.pk)
     images = scan.product.images.all() if scan.product else []
+    found, missing = review_rows(scan)
     return render(request, "scans/review.html", {
-        "scan": scan, "rows": review_rows(scan), "images": images,
+        "scan": scan, "found": found, "missing": missing, "images": images,
+        "total_fields": len(found) + len(missing),
     })
 
 
@@ -72,4 +77,10 @@ def scan_result(request, pk):
     scan = get_object_or_404(Scan, pk=pk)
     if not scan.overall_verdict:  # image scan that has not been reviewed yet
         return redirect("scan_review", pk=scan.pk)
-    return render(request, "scans/result.html", {"scan": scan, "results": scan.results.select_related("rule")})
+    rows = result_rows(scan, rule_order)
+    images = scan.product.images.all() if scan.product else []
+    return render(request, "scans/result.html", {
+        "scan": scan, "rows": rows, "summary": verdict_summary(rows), "images": images,
+        # Failed or doubtful rules with no box on the image, listed under it so nothing is silent.
+        "unlocated": [r for r in rows if not r["boxes"] and r["result"].verdict != "PASS"],
+    })

@@ -59,6 +59,15 @@ class LocateTests(SimpleTestCase):
         self.assertEqual(bbox, [0.05, 0.1, 0.7, 0.2])
         self.assertAlmostEqual(confidence, 0.8)
 
+    def test_punctuation_only_words_do_not_break_a_match(self):
+        words = [
+            {"text": "Mfd.", "conf": 0.9, "box": (10, 10, 30, 20), "line": (1, 1, 1)},
+            {"text": "&", "conf": 0.5, "box": (45, 10, 10, 20), "line": (1, 1, 1)},
+            {"text": "Packed", "conf": 0.9, "box": (60, 10, 50, 20), "line": (1, 1, 1)},
+        ]
+        bbox, _ = locate("Mfd. & Packed", words, (200, 100))
+        self.assertEqual(bbox, [0.05, 0.1, 0.5, 0.2])
+
     def test_no_match_gives_none(self):
         self.assertEqual(locate("Net Wt", self.WORDS, (200, 100)), (None, None))
 

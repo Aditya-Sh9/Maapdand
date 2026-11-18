@@ -1,21 +1,124 @@
-<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><title>Maapdand upload</title></head>
-<body>
-  <h1>Check a label from photos</h1>
-  <p>Upload every side of the pack (front, back, sides). A field found in any image counts. Screening aid only.</p>
+{% extends "base.html" %}
+{% load static ui %}
+{% block title %}Check a label · Maapdand{% endblock %}
+{% block body_class %}page-upload{% endblock %}
+
+{% block content %}
+<div class="wrap page">
+  {% stepper 1 %}
+
+  <div class="page-head">
+    <h1>Photograph the pack</h1>
+    <p>Upload every side: front, back and sides. A declaration found on any image counts. Up to 6 images, 10 MB each.</p>
+  </div>
+
   {% if problems %}
-  <ul>
-    {% for p in problems %}<li>{{ p }}</li>{% endfor %}
-  </ul>
+  <div class="alert alert--fail" role="alert" tabindex="-1" id="problems">
+    {% icon "triangle-alert" 20 %}
+    <div>
+      <p class="alert__title">These images could not be used yet</p>
+      <ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul>
+      <p class="small mt-2">Choose the images again; your browser clears them when the page reloads.</p>
+    </div>
+  </div>
   {% endif %}
+
   {# enctype is required, otherwise the browser sends the file names but not the files #}
-  <form method="post" enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data" class="upload-grid" id="upload-form" novalidate>
     {% csrf_token %}
-    <input type="file" name="images" accept="image/*" multiple><br>
-    {{ form.as_p }}
-    <button type="submit">Read label</button>
+    <div class="stack upload-main">
+      <label class="dropzone" id="dropzone">
+        <input type="file" name="images" id="images" accept="image/*" multiple aria-describedby="drop-hint">
+        <span class="dropzone__icon">{% icon "image-plus" 28 %}</span>
+        <span class="dropzone__title">Choose photos of the pack</span>
+        <span class="dropzone__hint" id="drop-hint">or drop them here. JPG or PNG, at least 800 px on the long side.</span>
+      </label>
+      {# Phones: opens the rear camera directly. Its photo is added to the list above by upload.js. #}
+      <input type="file" id="camera" accept="image/*" capture="environment" hidden>
+
+      <ul class="tiles" id="tiles" aria-live="polite" aria-label="Chosen images"></ul>
+
+      <div class="field">
+        <label class="field__label" for="{{ form.name.id_for_label }}">Product name <span class="muted">(optional)</span></label>
+        <input class="input" type="text" name="{{ form.name.html_name }}" id="{{ form.name.id_for_label }}" value="{{ form.name.value|default_if_none:'' }}" maxlength="200" autocomplete="off" placeholder="e.g. Roasted peanuts 200 g">
+      </div>
+
+      <fieldset class="fieldset">
+        <legend>Category</legend>
+        <div class="segmented">{% for radio in form.category %}<label>{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>{% endfor %}</div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Is it imported?</legend>
+        <p class="field__hint">Imported packs must also state the country of origin (R08).</p>
+        <div class="segmented">{% for radio in form.is_imported %}<label>{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>{% endfor %}</div>
+      </fieldset>
+
+      <div class="form-foot">
+        {% if problems %}
+        <label class="check">{{ form.use_anyway }}<span>{{ form.use_anyway.label }}</span></label>
+        {% endif %}
+        <div class="btn-row">
+          <button type="submit" class="btn btn--primary btn--large" id="submit-btn">{% icon "scan-line" 20 %}<span>Read the label</span></button>
+          <a class="small" href="{% url 'check_text' %}">No photos? Paste the label text</a>
+        </div>
+        <p class="busy" role="status" aria-live="polite"><span class="spinner" aria-hidden="true"></span><span id="busy-text">Reading the label in English and Hindi. This usually takes 10 to 30 seconds.</span></p>
+      </div>
+    </div>
+
+    <aside class="upload-side" aria-labelledby="guide-title">
+      <div class="guide">
+        <h2 id="guide-title">Take a clear, complete photo</h2>
+        <p class="muted small mt-2 guide__sub">The reader needs the whole panel, flat and sharp.</p>
+        {# One drawing of a pack, reused four ways. Lines are placeholder text, not real content. #}
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+          <defs>
+            <symbol id="pack" viewBox="0 0 120 84">
+              <rect x="2" y="2" width="116" height="80" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5"/>
+              <rect x="2" y="2" width="116" height="18" rx="8" fill="var(--primary-tint)" stroke="var(--muted)" stroke-width="1.5"/>
+              <rect x="12" y="8" width="44" height="6" rx="3" fill="var(--primary)"/>
+              <g stroke="var(--muted)" stroke-width="3" stroke-linecap="round">
+                <path d="M14 32h62M14 42h48M14 52h70M14 62h40"/>
+              </g>
+              <g stroke="var(--ink)" stroke-width="1.5"><path d="M90 58v16M93 58v16M97 58v16M99 58v16M103 58v16M106 58v16"/></g>
+            </symbol>
+            <filter id="soft-blur"><feGaussianBlur stdDeviation="2.2"/></filter>
+            <filter id="glare-blur"><feGaussianBlur stdDeviation="6"/></filter>
+          </defs>
+        </svg>
+        <figure class="guide__good mt-4">
+          <svg class="pack" viewBox="0 0 120 84" role="img" aria-label="The whole label panel, flat, sharp and evenly lit"><use href="#pack"/></svg>
+          <figcaption class="guide__verdict is-good">{% icon "circle-check" 16 %}Good example</figcaption>
+        </figure>
+        <div class="guide__bad">
+          <figure class="guide__item guide__item--good">
+            <svg class="pack" viewBox="0 0 120 84" role="img" aria-label="Good: the whole label panel, flat and sharp"><use href="#pack"/></svg>
+            <figcaption class="guide__verdict is-good">{% icon "circle-check" 16 %}Good</figcaption>
+          </figure>
+          <figure class="guide__item">
+            <svg class="pack" viewBox="0 0 120 84" role="img" aria-label="Cropped: part of the panel is cut off"><use href="#pack" x="34" y="-16"/></svg>
+            <figcaption class="guide__verdict is-bad">{% icon "circle-x" 16 %}Cropped</figcaption>
+          </figure>
+          <figure class="guide__item">
+            <svg class="pack" viewBox="0 0 120 84" role="img" aria-label="Glare: a bright reflection hides the text"><use href="#pack"/><ellipse cx="54" cy="46" rx="34" ry="16" fill="#FFFFFF" opacity="0.92" filter="url(#glare-blur)"/></svg>
+            <figcaption class="guide__verdict is-bad">{% icon "circle-x" 16 %}Glare</figcaption>
+          </figure>
+          <figure class="guide__item">
+            <svg class="pack" viewBox="0 0 120 84" role="img" aria-label="Blurry: the text is out of focus"><use href="#pack" filter="url(#soft-blur)"/></svg>
+            <figcaption class="guide__verdict is-bad">{% icon "circle-x" 16 %}Blurry</figcaption>
+          </figure>
+        </div>
+        <ul class="guide__tips">
+          <li>Fill the frame with one side of the pack.</li>
+          <li>Tilt the pack away from lights to avoid glare.</li>
+          <li>Hold still until the small print is sharp.</li>
+        </ul>
+      </div>
+    </aside>
   </form>
-  <p><a href="{% url 'check_text' %}">Paste text instead</a></p>
-</body>
-</html>
+</div>
+
+<button type="button" class="camera-fab" id="camera-btn" aria-label="Take a photo with the camera">{% icon "camera" 26 %}</button>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'js/upload.js' %}" defer></script>{% endblock %}

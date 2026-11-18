@@ -92,7 +92,7 @@ class ImageFlowTests(TestCase):
         response = self.client.get(reverse("scan_review", args=[scan.pk]))
         self.assertContains(response, 'name="field_mrp"')
         self.assertContains(response, 'name="field_net_quantity"')
-        self.assertContains(response, "not found")
+        self.assertContains(response, "Not found")
 
     def test_review_corrections_are_used_by_the_rules(self):
         scan = Scan.objects.create(input_mode=Scan.InputMode.IMAGE, raw_text="x")

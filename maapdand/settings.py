@@ -128,6 +128,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+# Project-wide CSS, JS, fonts and vendored libraries (no CDN, so the demo works offline).
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 
 # Email

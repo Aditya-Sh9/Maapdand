@@ -1,30 +1,92 @@
-<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><title>Maapdand review</title></head>
-<body>
-  <h1>Review what was read</h1>
-  <p>OCR makes mistakes. Correct any value, or fill in one that was missed, then run the checks. Leave a box empty if the label does not show it.</p>
-  <p>
-    {% for img in images %}
-      <a href="{{ img.image.url }}" target="_blank">Image {{ forloop.counter }}</a>
-      {% if not img.quality_ok %}(quality warning){% endif %}
-    {% endfor %}
-  </p>
-  <form method="post">
+{% extends "base.html" %}
+{% load static ui %}
+{% block title %}Review what was read · Maapdand{% endblock %}
+{% block body_class %}page-review{% endblock %}
+
+{% block content %}
+<div class="wrap page">
+  {% stepper 3 %}
+
+  <div class="page-head">
+    <h1>Check what was read</h1>
+    <p>OCR makes mistakes. Correct any value, and type in anything the label shows that was missed. Leave a box empty if the label does not show it. No rule runs until you confirm.</p>
+  </div>
+
+  <form method="post" class="review-grid" id="review-form">
     {% csrf_token %}
-    <table border="1" cellpadding="4">
-      <tr><th>Field</th><th>Value</th><th>Confidence</th></tr>
-      {% for name, field in rows %}
-      <tr>
-        <td>{{ name }}</td>
-        <td><input type="text" name="field_{{ name }}" size="60" value="{% if field %}{{ field.final_value }}{% endif %}"></td>
-        <td>{% if field %}{% widthratio field.confidence 1 100 %}%{% else %}not found{% endif %}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    <button type="submit">Run checks</button>
+
+    <section class="viewer" aria-label="Label images">
+      {% if images|length > 1 %}
+      <div class="viewer__tabs" role="tablist" aria-label="Choose an image">
+        {% for img in images %}
+        <button type="button" class="viewer__tab" role="tab" id="tab-{{ forloop.counter0 }}" aria-controls="frame-{{ forloop.counter0 }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}" data-index="{{ forloop.counter0 }}">
+          Image {{ forloop.counter }}{% if img.quality_ok is False %}<span class="warn">{% icon "triangle-alert" 14 label="quality warning" %}</span>{% endif %}
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="viewer__stage">
+        {% for img in images %}
+        <div class="viewer__frame{% if forloop.first %} is-active{% endif %}" id="frame-{{ forloop.counter0 }}" data-index="{{ forloop.counter0 }}"{% if images|length > 1 %} role="tabpanel" aria-labelledby="tab-{{ forloop.counter0 }}"{% endif %}>
+          <img src="{{ img.image.url }}" alt="Label image {{ forloop.counter }}">
+          {% for row in found %}{% if row.bbox and row.image_index == forloop.parentloop.counter0 %}{% evidence_box row.bbox "" row.name row.label %}{% endif %}{% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <p class="viewer__note">Boxes mark where each value was found. Focus a field to highlight it.{% if images|length > 1 %} A value found on any image counts.{% endif %}</p>
+      {% for img in images %}{% if img.quality_ok is False %}
+      <div class="alert alert--cannot">{% icon "triangle-alert" 20 %}<p>Image {{ forloop.counter }} did not pass the quality check. Its text may be misread, so check its values closely.</p></div>
+      {% endif %}{% endfor %}
+    </section>
+
+    <div>
+      <h2 class="fields-group" id="found-title">Found on the label ({{ found|length }})</h2>
+      <ul class="fields" aria-labelledby="found-title">
+        {% for row in found %}
+        <li class="frow" data-field="{{ row.name }}"{% if row.image_index is not None %} data-image="{{ row.image_index }}"{% endif %}>
+          <div class="frow__head">
+            <label class="frow__label" for="f-{{ row.name }}">{{ row.label }}</label>
+            <span class="frow__meta">
+              <span class="conf{% if row.low %} is-low{% endif %}" title="How sure the reader was">
+                <span class="conf__bar" aria-hidden="true"><span style="width: {{ row.confidence }}%"></span></span>
+                {{ row.confidence }}% sure{% if row.low %}, please check{% endif %}
+              </span>
+              {% if row.image_index is not None %}<span>· Image {{ row.image_index|add:1 }}</span>{% endif %}
+              {% if row.bbox %}<button type="button" class="show-btn" data-show="{{ row.name }}">Show<span class="visually-hidden"> {{ row.label }} on the image</span></button>{% endif %}
+            </span>
+          </div>
+          <textarea class="input autogrow" rows="1" id="f-{{ row.name }}" name="field_{{ row.name }}" autocomplete="off" spellcheck="false">{{ row.value }}</textarea>
+        </li>
+        {% endfor %}
+      </ul>
+
+      {% if missing %}
+      <h2 class="fields-group" id="missing-title">Not found ({{ missing|length }})</h2>
+      <ul class="fields" aria-labelledby="missing-title">
+        {% for row in missing %}
+        <li class="frow is-missing" data-field="{{ row.name }}">
+          <div class="frow__head">
+            <label class="frow__label" for="f-{{ row.name }}">{{ row.label }}</label>
+            <span class="frow__missing">{% icon "circle-help" 14 %}Not found</span>
+          </div>
+          <textarea class="input autogrow" rows="1" id="f-{{ row.name }}" name="field_{{ row.name }}" autocomplete="off" spellcheck="false" placeholder="Type it if the label shows it"></textarea>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <details class="raw">
+        <summary>Show all text that was read</summary>
+        <pre>{{ scan.raw_text|default:"No text was read." }}</pre>
+      </details>
+
+      <div class="sticky-submit">
+        <span class="small muted">{{ found|length }} of {{ total_fields }} fields found</span>
+        <button type="submit" class="btn btn--primary">{% icon "list-checks" 20 %}Confirm and run the checks</button>
+      </div>
+    </div>
   </form>
-  <h2>Raw text read</h2>
-  <pre>{{ scan.raw_text }}</pre>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'js/viewer.js' %}" defer></script>{% endblock %}

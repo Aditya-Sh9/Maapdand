@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Rules · Maapdand{% endblock %}
+{% block body_class %}page-rules{% endblock %}
+
+{% block content %}
+<div class="wrap page">
+  <div class="page-head">
+    <h1>The rules Maapdand checks</h1>
+    <p>Each check maps to a clause of the Legal Metrology (Packaged Commodities) Rules, 2011, verified against the gazette text and its amendments. R-rules are read from the label text. M-rules need the physical pack, so they return Cannot determine for now.</p>
+  </div>
+
+  <table class="rtable">
+    <caption class="visually-hidden">Rules with their legal clause and severity</caption>
+    <thead>
+      <tr><th scope="col">Code</th><th scope="col">Rule</th><th scope="col">Legal clause</th><th scope="col">Severity</th></tr>
+    </thead>
+    <tbody>
+      {% for rule in rules %}
+      <tr id="{{ rule.code }}">
+        <td><span class="code">{{ rule.code }}</span></td>
+        <td><strong>{{ rule.title }}</strong>{% if not rule.enabled %} <span class="tag">Switched off</span>{% endif %}<p class="desc">{{ rule.description }}</p></td>
+        <td class="clause" data-label="Clause">{{ rule.legal_reference|default:"Not recorded" }}</td>
+        <td data-label="Severity"><span class="tag{% if rule.severity == 'critical' %} tag--critical{% endif %}">{{ rule.get_severity_display }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p class="legend-note">Severity says how much a failure matters when you decide what to look at first: <strong>Critical</strong> declarations (who made it, how much, at what price) come before <strong>Major</strong> and <strong>Minor</strong> ones. It does not change the verdict.</p>
+</div>
+{% endblock %}

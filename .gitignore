@@ -11,3 +11,7 @@ staticfiles/
 
 media/
 tessdata/
+
+# design review screenshots
+.impeccable/review/
+.gemini/

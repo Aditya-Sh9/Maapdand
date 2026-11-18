@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static ui %}
+{% block title %}Maapdand · Pack label screening under the Legal Metrology rules{% endblock %}
+{% block body_class %}page-landing{% endblock %}
+{% block head %}<link rel="stylesheet" href="{% static 'vendor/lenis.css' %}">{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__copy" data-reveal>
+      <h1 class="hero__title" id="hero-title">Check a pack label against the Legal Metrology rules.</h1>
+      <p class="hero__lede">Maapdand reads photos of a packaged product, in English and Hindi, and checks the declarations the Packaged Commodities Rules, 2011 require. Each rule comes back <strong>Pass</strong>, <strong>Fail</strong> or <strong>Cannot determine</strong>, with the evidence marked on the label.</p>
+      <div class="btn-row">
+        <a class="btn btn--primary btn--large" href="{% url 'upload_images' %}">{% icon "camera" 20 %}Check a label</a>
+        <a class="small" href="{% url 'check_text' %}">or paste the label text</a>
+      </div>
+      <p class="hero__limit">{% icon "info" 16 %}<span>A screening aid for Legal Metrology officers and for sellers checking their own packs. It flags; the officer decides.</span></p>
+    </div>
+
+    {# Illustrative specimen: a made-up label, so the mechanism is visible before anyone uploads. #}
+    <figure class="specimen" aria-labelledby="specimen-cap" data-specimen>
+      <figcaption class="specimen__caption" id="specimen-cap">
+        <span>Sample label and its checks</span><span>Illustrative, not a real product</span>
+      </figcaption>
+      <div class="label-panel" aria-hidden="true">
+        <p class="label-panel__brand">Sundaram<small>Roasted Salted Peanuts</small><small lang="hi">भुनी हुई मूंगफली</small></p>
+        <hr class="label-panel__rule">
+        <dl>
+          <div class="ev ev--pass"><dt>Net Qty:</dt> <dd>200 g <span lang="hi">(शुद्ध मात्रा 200 ग्राम)</span></dd><span class="ev__box"><span class="ev__tag">R03</span></span></div>
+          <div class="ev ev--fail"><dt>MRP:</dt> <dd>₹ 60.00</dd><span class="ev__box"><span class="ev__tag">R06</span></span></div>
+          <div class="ev ev--pass"><dt>Mfd:</dt> <dd>08/2026</dd><span class="ev__box"><span class="ev__tag">R05</span></span></div>
+          <div><dt>Best before:</dt> <dd>6 months from manufacture</dd></div>
+        </dl>
+        <hr class="label-panel__rule">
+        <div class="ev ev--pass"><b>Mfd. &amp; Packed by:</b> Sundaram Foods Pvt. Ltd., Plot 14, Sector C, Industrial Area, Indore 452001<span class="ev__box"><span class="ev__tag">R01</span></span></div>
+        <p class="label-panel__missing ev ev--fail">No consumer care number or email on this side<span class="ev__tag">R07</span></p>
+      </div>
+      <ul class="specimen__checks">
+        <li><span class="code">R01</span><span class="t">Manufacturer name and address</span>{% verdict_chip "PASS" %}</li>
+        <li><span class="code">R03</span><span class="t">Net quantity declared</span>{% verdict_chip "PASS" %}</li>
+        <li><span class="code">R05</span><span class="t">Month and year of manufacture</span>{% verdict_chip "PASS" %}</li>
+        <li><span class="code">R06</span><span class="t">MRP inclusive of all taxes</span>{% verdict_chip "FAIL" %}</li>
+        <li><span class="code">R07</span><span class="t">Consumer care details</span>{% verdict_chip "FAIL" %}</li>
+        <li><span class="code">M01</span><span class="t">Letter and numeral height</span>{% verdict_chip "CANNOT_DETERMINE" %}</li>
+      </ul>
+    </figure>
+  </section>
+</div>
+
+<section class="band" aria-labelledby="how-title">
+  <div class="wrap">
+    <div class="band__head" data-reveal>
+      <h2 id="how-title">Four steps, and a person stays in the loop</h2>
+      <p>The machine reads; you confirm what it read; only then do the rules run.</p>
+    </div>
+    <ol class="flow" data-reveal-group>
+      <li>{% icon "camera" 24 %}<h3>Upload</h3><p>Photograph every side of the pack. A declaration found on any side counts.</p></li>
+      <li>{% icon "scan-line" 24 %}<h3>Read</h3><p>Text is read in English and Hindi, and each declaration is located on the image.</p></li>
+      <li>{% icon "pencil" 24 %}<h3>Review</h3><p>You correct anything misread, or type in what was missed, before any rule runs.</p></li>
+      <li>{% icon "list-checks" 24 %}<h3>Result</h3><p>{{ rules|length }} checks, each Pass, Fail or Cannot determine, with its clause and evidence.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="rules-title">
+  <div class="wrap">
+    <div class="band__head" data-reveal>
+      <h2 id="rules-title">What it checks</h2>
+      <p>Each check maps to a clause verified against the gazette text of the Rules and their amendments.</p>
+    </div>
+    <div class="rulebook" data-reveal-group>
+      {% for rule in rules %}
+      <div class="rulebook__row"><span class="code">{{ rule.code }}</span><span>{{ rule.title }}<span class="ref">{{ rule.legal_reference }}</span></span></div>
+      {% endfor %}
+    </div>
+    <p class="band__more"><a href="{% url 'rule_list' %}">Read what each rule checks {% icon "arrow-right" 16 %}</a></p>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="limits-title">
+  <div class="wrap limits">
+    <div class="stack" data-reveal>
+      <h2 id="limits-title">Built to flag, not to clear</h2>
+      <p class="muted">When the text cannot settle a rule, Maapdand says <em>Cannot determine</em> instead of guessing a pass. A missed violation costs more than a second look.</p>
+    </div>
+    <ul class="limits__list" data-reveal-group>
+      <li>{% icon "scale" 20 %}<span>It does not measure letter height or panel area. Those checks return Cannot determine until a person looks at the pack.</span></li>
+      <li>{% icon "book-open" 20 %}<span>It covers the Packaged Commodities Rules only, not FSSAI, drug or other commodity-specific rules.</span></li>
+      <li>{% icon "pencil" 20 %}<span>OCR misreads. Every value is shown to you for correction before the checks run.</span></li>
+      <li>{% icon "info" 20 %}<span>It is not a legal notice. The final decision rests with the Legal Metrology officer.</span></li>
+    </ul>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="close" aria-labelledby="close-title" data-reveal>
+    <h2 id="close-title">Have a pack in hand? Start with a photo of each side.</h2>
+    <a class="btn btn--primary btn--large" href="{% url 'upload_images' %}">{% icon "camera" 20 %}Check a label</a>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/lenis.min.js' %}" defer></script>
+<script src="{% static 'js/landing.js' %}" defer></script>
+{% endblock %}

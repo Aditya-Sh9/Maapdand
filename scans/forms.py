@@ -9,14 +9,15 @@ class UploadForm(forms.Form):
 
     name = forms.CharField(max_length=200, required=False, label="Product name (optional)")
     category = forms.ChoiceField(
-        choices=[("", "Not sure")] + Product.Category.choices, required=False
+        choices=Product.Category.choices + [("", "Not sure")], required=False, initial="",
+        widget=forms.RadioSelect,  # shown as pill buttons; one tap on a phone
     )
     is_imported = forms.ChoiceField(
-        choices=[("", "Not sure"), ("yes", "Yes"), ("no", "No")], required=False,
-        label="Imported product?",
+        choices=[("no", "No"), ("yes", "Yes"), ("", "Not sure")], required=False, initial="",
+        label="Is it imported?", widget=forms.RadioSelect,
     )
     use_anyway = forms.BooleanField(
-        required=False, label="Use images even if the quality check complains"
+        required=False, label="Use these images anyway. I understand the reading may be less accurate."
     )
 
     def imported_value(self):
