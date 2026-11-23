@@ -108,4 +108,3 @@ class OCRExtractorTests(SimpleTestCase):
         # and that the digits survived.
         self.assertRegex(result.raw_text, r"[\u0900-\u097F]")
         self.assertIn("500", result.raw_text)
-        print("\nHindi OCR read:", result.raw_text.replace("\n", " | "), "->", sorted(result.fields))

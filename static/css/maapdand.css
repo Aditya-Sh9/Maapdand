@@ -562,3 +562,19 @@ form.is-busy .busy { display: flex; }
   .nav-cta { width: 44px; padding: 0; border-radius: 50%; }
   .nav-cta__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
+
+/* Documents tab: official gazette PDFs, one ruled ledger like the rule browser */
+.doc-list { list-style: none; padding: 0; margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow); }
+.doc { display: grid; gap: var(--s4); padding: var(--s4); }
+.doc + .doc { border-top: 1px solid var(--line); }
+.doc__title { font-size: 1.25rem; }
+.doc__meta { color: var(--muted); font-size: var(--fs-small); margin-top: var(--s2); }
+.doc__summary { margin-top: var(--s3); max-width: 70ch; }
+@media (min-width: 720px) { .doc { grid-template-columns: 1fr auto; align-items: center; gap: var(--s6); padding: var(--s5) var(--s6); } }
+.nav-short { display: none; }
+/* Four nav links no longer fit a 360px header: shorten the label and the link padding. */
+@media (max-width: 479px) {
+  .nav-long { display: none; }
+  .nav-short { display: inline; }
+  .site-nav > a:not(.btn) { padding: 0 var(--s1); }
+}

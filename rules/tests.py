@@ -242,3 +242,22 @@ class SeededRulesTests(TestCase):
     def test_no_reference_left_unverified(self):
         from .models import Rule
         self.assertFalse(Rule.objects.filter(legal_reference__icontains="verify").exists())
+
+
+class DocumentsTabTests(TestCase):
+    def test_list_page_shows_every_document(self):
+        from .documents import DOCUMENTS
+        response = self.client.get("/documents/")
+        self.assertEqual(response.status_code, 200)
+        for doc in DOCUMENTS:
+            self.assertContains(response, doc["title"])
+
+    def test_pdf_opens_inline_and_downloads_on_request(self):
+        view = self.client.get("/documents/amendment-2017/")
+        self.assertEqual(view["Content-Type"], "application/pdf")
+        self.assertTrue(view["Content-Disposition"].startswith("inline"))
+        download = self.client.get("/documents/amendment-2017/?download=1")
+        self.assertTrue(download["Content-Disposition"].startswith("attachment"))
+
+    def test_unknown_document_is_404(self):
+        self.assertEqual(self.client.get("/documents/not-a-real-doc/").status_code, 404)

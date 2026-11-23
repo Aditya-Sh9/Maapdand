@@ -3,11 +3,14 @@
 A *template tag library* is a Python module in an app's `templatetags/` folder.
 Templates load it with `{% load ui %}` and can then call `{% icon "check" %}` etc.
 """
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
 
 from django import template
+from django.contrib.staticfiles import finders
+from django.templatetags.static import static
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
@@ -46,6 +49,20 @@ def icon(name, size=20, label=""):
         'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false" {1}>{2}</svg>',
         size, a11y, mark_safe(_icon_body(name)),
     )
+
+
+@register.simple_tag
+def static_v(path):
+    """Like {% static %}, plus "?v=<last-modified time>" so browsers fetch a file again after it changes.
+
+    Without this the browser may keep using its cached copy of maapdand.css after we edit it,
+    and a new page shows up unstyled until a hard refresh.
+    """
+    url = static(path)
+    found = finders.find(path)  # the file on disk, looked up the same way runserver serves it
+    if not found:
+        return url
+    return f"{url}?v={int(os.path.getmtime(found))}"
 
 
 @register.filter

@@ -15,3 +15,13 @@ tessdata/
 # design review screenshots
 .impeccable/review/
 .gemini/
+
+# local tooling and notes (not part of the repo)
+.impeccable/
+*.md
+!README.md
+!evaluation/data/README.md
+
+# personal submission documents
+*.docx
+Maapdand_SRS_Report.pdf

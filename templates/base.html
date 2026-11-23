@@ -10,7 +10,8 @@
   <link rel="preload" href="{% static 'fonts/noto-sans-400.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fonts/source-serif-4-600.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
-  <link rel="stylesheet" href="{% static 'css/maapdand.css' %}">
+  {# static_v adds ?v=<file time> so an edited stylesheet is never served from a stale browser cache. #}
+  <link rel="stylesheet" href="{% static_v 'css/maapdand.css' %}">
   {% block head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -23,9 +24,10 @@
         <span class="wordmark__hi" lang="hi">मापदंड</span>
       </a>
       <nav class="site-nav" aria-label="Main">
-        {% url 'upload_images' as upload_url %}{% url 'rule_list' as rules_url %}{% url 'scan_history' as history_url %}
+        {% url 'upload_images' as upload_url %}{% url 'rule_list' as rules_url %}{% url 'scan_history' as history_url %}{% url 'document_list' as docs_url %}
         <a href="{{ history_url }}"{% if request.path == history_url %} aria-current="page"{% endif %}>History</a>
         <a href="{{ rules_url }}"{% if request.path == rules_url %} aria-current="page"{% endif %}>Rules</a>
+        <a href="{{ docs_url }}" aria-label="Documents"{% if request.path == docs_url %} aria-current="page"{% endif %}><span class="nav-long">Documents</span><span class="nav-short" aria-hidden="true">Docs</span></a>
         <a class="btn btn--primary btn--small nav-cta" href="{{ upload_url }}"{% if request.path == upload_url %} aria-current="page"{% endif %}>{% icon "camera" 18 %}<span class="nav-cta__label">Check a label</span></a>
       </nav>
     </div>
@@ -38,13 +40,13 @@
   <footer class="site-footer">
     <div class="wrap site-footer__inner">
       <p class="site-footer__note">{% icon "info" 18 %}<span><strong>Screening aid, not a legal determination.</strong> Maapdand checks label text against the Legal Metrology (Packaged Commodities) Rules, 2011. The final decision rests with the Legal Metrology officer.</span></p>
-      <p class="site-footer__meta">SIH26034 · <a href="{% url 'rule_list' %}">Rules and legal references</a></p>
+      <p class="site-footer__meta">SIH26034 · <a href="{% url 'rule_list' %}">Rules and legal references</a> · <a href="{% url 'document_list' %}">Official documents</a></p>
     </div>
   </footer>
 
   {# Motion: GSAP for meaningful sequences only. motion.js turns everything off for reduced motion. #}
   <script src="{% static 'vendor/gsap.min.js' %}" defer></script>
-  <script src="{% static 'js/motion.js' %}" defer></script>
+  <script src="{% static_v 'js/motion.js' %}" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

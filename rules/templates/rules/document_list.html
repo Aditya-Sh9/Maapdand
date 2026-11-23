@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Documents · Maapdand{% endblock %}
+{% block body_class %}page-documents{% endblock %}
+
+{% block content %}
+<div class="wrap page">
+  <div class="page-head">
+    <h1>Official documents</h1>
+    <p>The gazette notifications Maapdand's rules are verified against: the Legal Metrology (Packaged Commodities) Rules, 2011 and the amendments that changed what a label must show. No official consolidated text is published, so the current wording is the 2011 text plus the amendments below.</p>
+  </div>
+
+  <ul class="doc-list">
+    {% for doc in documents %}
+    <li class="doc">
+      <div class="doc__body">
+        <h2 class="doc__title">{{ doc.title }}</h2>
+        <p class="doc__meta"><span class="code">{{ doc.notification }}</span> · {{ doc.date }} · {{ doc.kind }}{% if doc.size_mb %} · PDF, {{ doc.size_mb }} MB{% endif %}</p>
+        <p class="doc__summary">{{ doc.summary }}</p>
+      </div>
+      <div class="btn-row doc__actions">
+        {% if doc.available %}
+        <a class="btn btn--secondary btn--small" href="{% url 'document_file' doc.slug %}" target="_blank" rel="noopener" aria-label="View {{ doc.title }} (PDF, opens in a new tab)">{% icon "book-open" 18 %}<span>View</span></a>
+        <a class="btn btn--secondary btn--small" href="{% url 'document_file' doc.slug %}?download=1" aria-label="Download {{ doc.title }} (PDF)">{% icon "download" 18 %}<span>Download</span></a>
+        {% else %}
+        <span class="tag">File missing from docs/reference</span>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <p class="legend-note">Official source: <a href="{{ source_url }}" target="_blank" rel="noopener">Department of Consumer Affairs, Legal Metrology Act page</a>. Not stored here because they do not affect label checks: QR-code provisos for electronic products, date-extension notices, garment and pan-masala exemptions, e-commerce rules, registration and medical devices.</p>
+</div>
+{% endblock %}

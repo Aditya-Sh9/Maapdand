@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1160 520" width="1160" height="520" role="img" aria-labelledby="t d">
+  <title id="t">Maapdand processing pipeline (DFD level 1)</title>
+  <desc id="d">Label images or text flow through five processes: read, extract, human review, check rules and report. Scans and results are kept in a data store; the rules store feeds the check step; the final report returns to the user.</desc>
+  <style>
+    text { font-family: "Noto Sans", "Segoe UI", Helvetica, Arial, sans-serif; fill: #1B2421; }
+    .title { font-family: "Source Serif 4", Georgia, serif; font-size: 20px; font-weight: 600; }
+    .sub { font-size: 12px; fill: #566059; }
+    .lbl { font-size: 11.5px; fill: #566059; }
+    .nm { font-size: 14px; font-weight: 600; }
+    .box { fill: #FFFFFF; stroke: #DDD8CC; stroke-width: 1.5; }
+    .proc { fill: #E7F0EE; stroke: #0F6B5C; stroke-width: 2; }
+    .human { fill: #FBEBC6; stroke: #C48A1C; stroke-width: 2; }
+    .flow { fill: none; stroke: #0F6B5C; stroke-width: 2; stroke-dasharray: 7 6; animation: dash 1.2s linear infinite; }
+    .store { fill: none; stroke: #C48A1C; stroke-width: 2; stroke-dasharray: 7 6; animation: dash 1.2s linear infinite; }
+    .dot { fill: #0F6B5C; }
+    @keyframes dash { to { stroke-dashoffset: -26; } }
+    @media (prefers-reduced-motion: reduce) { .flow, .store { animation: none; } }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0F6B5C"/>
+    </marker>
+    <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#C48A1C"/>
+    </marker>
+  </defs>
+
+  <rect width="1160" height="520" rx="20" fill="#F6F3EC"/>
+  <text x="32" y="40" class="title">Processing pipeline (DFD level 1)</text>
+  <text x="32" y="60" class="sub">Read, extract, review, check, report. Rules never know where the text came from.</text>
+
+  <!-- User -->
+  <rect x="20" y="150" width="110" height="90" rx="6" class="box"/>
+  <text x="75" y="190" text-anchor="middle" class="nm">User</text>
+  <text x="75" y="210" text-anchor="middle" class="sub">uploads, reviews</text>
+
+  <!-- P1 Read -->
+  <rect x="200" y="150" width="120" height="90" rx="14" class="proc"/>
+  <text x="260" y="174" text-anchor="middle" class="sub">1</text>
+  <text x="260" y="194" text-anchor="middle" class="nm">Read</text>
+  <text x="260" y="213" text-anchor="middle" class="sub">clean up + OCR</text>
+  <text x="260" y="228" text-anchor="middle" class="sub">English + Hindi</text>
+
+  <!-- P2 Extract -->
+  <rect x="390" y="150" width="120" height="90" rx="14" class="proc"/>
+  <text x="450" y="174" text-anchor="middle" class="sub">2</text>
+  <text x="450" y="194" text-anchor="middle" class="nm">Extract</text>
+  <text x="450" y="213" text-anchor="middle" class="sub">regex + keywords</text>
+  <text x="450" y="228" text-anchor="middle" class="sub">EN + HI</text>
+
+  <!-- P3 Review (human) -->
+  <rect x="580" y="150" width="120" height="90" rx="14" class="human"/>
+  <text x="640" y="174" text-anchor="middle" class="sub">3</text>
+  <text x="640" y="194" text-anchor="middle" class="nm">Review</text>
+  <text x="640" y="213" text-anchor="middle" class="sub">person confirms</text>
+  <text x="640" y="228" text-anchor="middle" class="sub">or corrects</text>
+
+  <!-- P4 Check -->
+  <rect x="770" y="150" width="120" height="90" rx="14" class="proc"/>
+  <text x="830" y="174" text-anchor="middle" class="sub">4</text>
+  <text x="830" y="194" text-anchor="middle" class="nm">Check</text>
+  <text x="830" y="213" text-anchor="middle" class="sub">one function</text>
+  <text x="830" y="228" text-anchor="middle" class="sub">per rule</text>
+
+  <!-- P5 Report -->
+  <rect x="960" y="150" width="120" height="90" rx="14" class="proc"/>
+  <text x="1020" y="174" text-anchor="middle" class="sub">5</text>
+  <text x="1020" y="194" text-anchor="middle" class="nm">Report</text>
+  <text x="1020" y="213" text-anchor="middle" class="sub">verdicts, evidence</text>
+  <text x="1020" y="228" text-anchor="middle" class="sub">print to PDF</text>
+
+  <!-- D2 rules store (top) -->
+  <path d="M710 70 H950 M710 114 H950 M710 70 V114" stroke="#C48A1C" stroke-width="2" fill="none"/>
+  <rect x="710" y="70" width="240" height="44" fill="#FFFFFF" fill-opacity="0.6"/>
+  <text x="830" y="97" text-anchor="middle" class="nm" style="font-size:13px">D2  Rules + law references</text>
+
+  <!-- D1 scans store (bottom) -->
+  <path d="M220 330 H860 M220 374 H860 M220 330 V374" stroke="#C48A1C" stroke-width="2" fill="none"/>
+  <rect x="220" y="330" width="640" height="44" fill="#FFFFFF" fill-opacity="0.6"/>
+  <text x="540" y="357" text-anchor="middle" class="nm" style="font-size:13px">D1  Products, label images, extracted fields, rule results</text>
+
+  <!-- Main flows -->
+  <path id="m1" class="flow" d="M130 195 H200" marker-end="url(#a)"/>
+  <text x="165" y="183" text-anchor="middle" class="lbl">images</text>
+  <path id="m2" class="flow" d="M320 195 H390" marker-end="url(#a)"/>
+  <text x="355" y="183" text-anchor="middle" class="lbl">OCR text</text>
+  <path id="m3" class="flow" d="M510 195 H580" marker-end="url(#a)"/>
+  <text x="545" y="183" text-anchor="middle" class="lbl">fields</text>
+  <path id="m4" class="flow" d="M700 195 H770" marker-end="url(#a)"/>
+  <text x="735" y="183" text-anchor="middle" class="lbl">confirmed</text>
+  <text x="735" y="211" text-anchor="middle" class="lbl">fields</text>
+  <path id="m5" class="flow" d="M890 195 H960" marker-end="url(#a)"/>
+  <text x="925" y="183" text-anchor="middle" class="lbl">verdicts</text>
+
+  <!-- Review loop with user (top) -->
+  <path id="r1" class="flow" d="M75 150 V120 H640 V150" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text x="360" y="110" text-anchor="middle" class="lbl">review form and corrections</text>
+
+  <!-- Rules into check -->
+  <path id="d2" class="store" d="M830 114 V150" marker-end="url(#am)"/>
+
+  <!-- Store links -->
+  <path class="store" d="M260 240 V330" marker-end="url(#am)"/>
+  <path class="store" d="M450 240 V330" marker-end="url(#am)"/>
+  <path class="store" d="M640 240 V330" marker-start="url(#am)" marker-end="url(#am)"/>
+  <path class="store" d="M830 240 V330" marker-end="url(#am)"/>
+
+  <!-- Report back to user (bottom) -->
+  <path id="rb" class="flow" d="M1020 240 V450 H75 V240" marker-end="url(#a)"/>
+  <text x="560" y="442" text-anchor="middle" class="lbl">Pass / Fail / Cannot determine, evidence boxes on the image, PDF</text>
+
+  <!-- Moving dots along the main pipeline -->
+  <circle r="5" class="dot"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath xlink:href="#m1"/></animateMotion></circle>
+  <circle r="5" class="dot"><animateMotion dur="1.6s" begin="0.4s" repeatCount="indefinite"><mpath xlink:href="#m2"/></animateMotion></circle>
+  <circle r="5" class="dot"><animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite"><mpath xlink:href="#m3"/></animateMotion></circle>
+  <circle r="5" class="dot"><animateMotion dur="1.6s" begin="1.2s" repeatCount="indefinite"><mpath xlink:href="#m4"/></animateMotion></circle>
+  <circle r="5" class="dot"><animateMotion dur="1.6s" begin="1.6s" repeatCount="indefinite"><mpath xlink:href="#m5"/></animateMotion></circle>
+
+  <!-- Legend -->
+  <g transform="translate(32 482)">
+    <rect width="14" height="14" rx="4" fill="#E7F0EE" stroke="#0F6B5C" stroke-width="1.5"/><text x="22" y="12" class="sub">automatic step</text>
+    <rect x="130" width="14" height="14" rx="4" fill="#FBEBC6" stroke="#C48A1C" stroke-width="1.5"/><text x="152" y="12" class="sub">human step</text>
+    <path d="M250 7 H274" stroke="#C48A1C" stroke-width="2" stroke-dasharray="5 4"/><text x="282" y="12" class="sub">data store access</text>
+    <circle cx="428" cy="7" r="6" fill="#2F8A57"/><text x="440" y="12" class="sub">Pass</text>
+    <circle cx="490" cy="7" r="6" fill="#C2473B"/><text x="502" y="12" class="sub">Fail</text>
+    <circle cx="550" cy="7" r="6" fill="#C48A1C"/><text x="562" y="12" class="sub">Cannot determine</text>
+  </g>
+</svg>
